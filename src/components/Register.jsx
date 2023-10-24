@@ -1,16 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AxiosService from "../common/ApiService";
 import { ToastContainer, toast } from "react-toastify";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 function Register() {
-  const [userName, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  let navigate = useNavigate();
+  const initialValues = {
+    userName:"",
+    email: "",
+    password: "",
+  };
 
-  let validateRegister = async (e) => {
-    e.preventDefault();
+  const validationSchema = Yup.object({
+    userName:Yup.string()
+    .required("UserName should not be empty")
+    .min(5,"UserName Should be minimum 5 char"),
+    email: Yup.string()
+      .required("Email should not be empty")
+      .email("Invalid email"),
+    password: Yup.string()
+      .required("Password should not be empty")
+      .min(6, "password should be minimum 6 char"),
+  });
+
+  const onSubmit = async (value) => {
+    const { userName,email, password } = value;
     try {
       let res = await AxiosService.post("/user/create", {
         userName,
@@ -25,6 +40,16 @@ function Register() {
       toast.error("Error Occurred. Please try again later");
     }
   };
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema,
+  });
+
+
+  let navigate = useNavigate();
+
+      
 
   return (
     <>
@@ -36,47 +61,70 @@ function Register() {
           </div>
           <div className="row d-flex  justify-content-center my-5 ">
             <div className="col col-md-6">
-              <form>
+            <form onSubmit={formik.handleSubmit}>
                 <div className="form-group">
                   <label className="form-label  col-form-label">
                     Enter Your Name
                   </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={userName}
-                    onChange={(e) => setName(e.target.value)}
+                  <input  type="text"  className="form-control"
+                    value={formik.values.userName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    name="userName"
                     placeholder="Your Name"
                   />
+                       {formik.touched.userName && formik.errors.userName ? (
+                    <label className="text-danger">
+                      *{formik.errors.userName}
+                    </label>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="form-group  my-2">
                   <label className="form-label  col-form-label">
                     Enter Your Email
                   </label>
                   <input
-                    type="email"
-                    className="form-control"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                      type="email" className="form-control"
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      name="email"
                     placeholder="Your Email"
                   />
+                          {formik.touched.email && formik.errors.email ? (
+                    <label className="text-danger">
+                      *{formik.errors.email}
+                    </label>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="form-group">
                   <label className=" col-form-label">Enter Your Password</label>
                   <input
-                    type="password"
-                    className="form-control"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                     type="password"  className="form-control"
+                     value={formik.values.password}
+                     onChange={formik.handleChange}
+                     onBlur={formik.handleBlur}
+                     name="password"
                     placeholder="Your Password"
                   />
+                       {formik.touched.password && formik.errors.password ? (
+                    <label className="text-danger">
+                      *{formik.errors.password}
+                    </label>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="form-outline my-4">
-                  <button
-                    type="button"
-                    onClick={(e) => validateRegister(e)}
-                    className="btn btn-primary"
-                  >
+                <button
+                  type="submit"
+                  disabled={!(formik.dirty && formik.isValid)}
+                  className="btn btn-primary  btn-block mb-4"
+                >
                     Register
                   </button>
                 </div>

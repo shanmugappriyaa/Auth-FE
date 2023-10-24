@@ -1,17 +1,26 @@
-import React, { useState } from "react";
-import { Form, Button } from "react-bootstrap";
+import { React } from "react";
 import AxiosService from "../common/ApiService";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 function Resetpage() {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const { id } = useParams();
-  let navigate = useNavigate();
-
-  const validatePassword = async (e) => {
-    e.preventDefault();
+  const initialValues = {
+    newPassword: "",
+    confirmPassword: "",
+  };
+  const validationSchema = Yup.object({
+    newPassword: Yup.string()
+      .required("Password is required")
+      .min(6, "Password Should be minimum 6 char"),
+    confirmPassword: Yup.string()
+      .required("Password should not be empty")
+      .oneOf([Yup.ref("newPassword")], "Passwords must match"),
+  });
+  const onSubmit = async (value) => {
+    const { newPassword, confirmPassword } = value;
+    const { id } = useParams();
     if (newPassword != confirmPassword)
       return toast.error(
         "New and Confirm Passwords are mismatched . Please try again"
@@ -29,6 +38,13 @@ function Resetpage() {
     }
   };
 
+  const formik = useFormik({
+    initialValues,
+    onSubmit,
+    validationSchema,
+  });
+  let navigate = useNavigate();
+
   return (
     <>
       <ToastContainer position="top-right" />
@@ -38,40 +54,55 @@ function Resetpage() {
         </div>
         <div className="row d-flex  justify-content-center my-5 ">
           <div className="col col-md-5">
-            <Form>
-              <Form.Group
-                className="mb-3"
-                controlId="exampleForm.ControlInput1"
-              >
-                <Form.Label>New Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+            <form onSubmit={formik.handleSubmit}>
+            <div className="form-group">
+             <label className="form-label  col-form-label">
+              New Password </label>
+                <input
+                  type="password"  className="form-control"
+                  name="newPassword"
+                  value={formik.values.newPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
-              </Form.Group>
-              <Form.Group
-                classNameName="mb-3"
-                controlId="exampleForm.ControlInput1"
-              >
-                <Form.Label> Confirm Password</Form.Label>
-                <Form.Control
+                {formik.touched.newPassword && formik.errors.newPassword ? (
+                  <label className="text-danger">
+                    *{formik.errors.newPassword}
+                  </label>
+                ) : (
+                  ""
+                )}
+              </div>
+              <div className="form-group my-2">
+             <label className="form-label  col-form-label">
+              Confirm Password </label>
+                <input
+                  name="confirmPassword"  className="form-control"
                   type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
-              </Form.Group>
-            </Form>
-            <Button
-              variant="primary"
-              className=" my-4"
-              onClick={(e) => validatePassword(e)}
+                {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+                  <label className="text-danger">
+                    *{formik.errors.confirmPassword}
+                  </label>
+                ) : (
+                  ""
+                )}
+              </div>
+            </form>
+            <button
+               className="btn btn-primary  btn-block mt-2 mb-4"
+              type="submit"
+              disabled={!(formik.dirty && formik.isValid)}
             >
               Reset
-            </Button>{" "}
+            </button>{" "}
+            </div>
           </div>
         </div>
-      </div>
+
     </>
   );
 }

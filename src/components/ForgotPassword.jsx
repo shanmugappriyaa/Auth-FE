@@ -1,13 +1,27 @@
-import React, { useState } from "react";
+import React from "react";
 import AxiosService from "../common/ApiService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import * as Yup from "yup";
 
 function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const validateForgotPassword = async (e) => {
-    e.preventDefault();
+
+  const initialValues = {
+    email: "",
+  };
+
+  const validationSchema = Yup.object({
+    email: Yup.string()
+      .required("Email should not be empty")
+      .email("Invalid email"),
+  });
+
+  const onSubmit = async (value) => {
+    console.log(value);
+
+    const { email } = value;
     try {
       await AxiosService.post("user/forgotPassword", { email });
       toast.success("sent a mail to your registerd E-mail.pls check!");
@@ -19,6 +33,7 @@ function ForgotPassword() {
       );
     }
   };
+
   return (
     <>
       <ToastContainer position="top-right" />
@@ -33,26 +48,46 @@ function ForgotPassword() {
               Enter your email address and we'll send you an email with
               instructions to reset your password.
             </p>
-            <div className="form-outline">
-              <label className="form-label" htmlFor="typeEmail">
-                Email
-              </label>
-              <input
-                type="email"
-                id="typeEmail"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-control my-3"
-              />
-            </div>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={(e) => validateForgotPassword(e)}
+            <Formik
+              initialValues={initialValues}
+              onSubmit={onSubmit}
+              validationSchema={validationSchema}
+              validateOnMount
             >
-              Submit
-            </button>
+              {(formik) => {
+                return (
+                  <>
+                    <Form>
+                      <div className="form-outline my-3">
+                        <label className="form-label" htmlFor="typeEmail">
+                          Email
+                        </label>
+                        <Field
+                          type="email"
+                          id="typeEmail"
+                          name="email"
+                          placeholder="your@email.com"
+                          className="form-control"
+                        />
+                        <ErrorMessage name="email">
+                          {(msg) => (
+                            <label className="text-danger">*{msg}</label>
+                          )}
+                        </ErrorMessage>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={!(formik.dirty && formik.isValid)}
+                      >
+                        Submit
+                      </button>
+                    </Form>
+                  </>
+                );
+              }}
+            </Formik>
             <div className="d-flex justify-content-between mt-4">
               <Link to="/">Login</Link>
               <Link to="/register">Register</Link>
