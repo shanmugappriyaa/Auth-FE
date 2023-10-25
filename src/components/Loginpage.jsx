@@ -3,9 +3,13 @@ import { Link } from "react-router-dom";
 import AxiosService from "../common/ApiService";
 import { ErrorMessage, useFormik } from "formik";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate} from "react-router-dom";
 import * as Yup from "yup";
 
 function Loginpage() {
+
+  let navigate= useNavigate()
+
   const initialValues = {
     email: "",
     password: "",
@@ -28,6 +32,7 @@ function Loginpage() {
         password,
       });
       toast.success("Login Successfull");
+      navigate('/home')
     } catch (error) {
       toast.error(error.response.data.message || "Error occured ");
     }
