@@ -7,6 +7,8 @@ import * as Yup from "yup";
 
 function OtpPage() {
   let navigate = useNavigate();
+  const { id } = useParams();
+  console.log("---------------------->", id);
   const initialValues = {
     Otp: "",
   };
@@ -17,7 +19,7 @@ function OtpPage() {
   });
   const onSubmit = async (value) => {
     const { Otp } = value;
-    const { id } = useParams();
+
     try {
       let res = await AxiosService.post("/user/otp", {
         id,

@@ -6,6 +6,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 
 function Resetpage() {
+  const { id } = useParams();
+  console.log("rest --------id-----> ", id);
   const initialValues = {
     newPassword: "",
     confirmPassword: "",
@@ -20,7 +22,7 @@ function Resetpage() {
   });
   const onSubmit = async (value) => {
     const { newPassword, confirmPassword } = value;
-    const { id } = useParams();
+
     if (newPassword != confirmPassword)
       return toast.error(
         "New and Confirm Passwords are mismatched . Please try again"
@@ -55,11 +57,13 @@ function Resetpage() {
         <div className="row d-flex  justify-content-center my-5 ">
           <div className="col col-md-5">
             <form onSubmit={formik.handleSubmit}>
-            <div className="form-group">
-             <label className="form-label  col-form-label">
-              New Password </label>
+              <div className="form-group">
+                <label className="form-label  col-form-label">
+                  New Password{" "}
+                </label>
                 <input
-                  type="password"  className="form-control"
+                  type="password"
+                  className="form-control"
                   name="newPassword"
                   value={formik.values.newPassword}
                   onChange={formik.handleChange}
@@ -74,16 +78,19 @@ function Resetpage() {
                 )}
               </div>
               <div className="form-group my-2">
-             <label className="form-label  col-form-label">
-              Confirm Password </label>
+                <label className="form-label  col-form-label">
+                  Confirm Password{" "}
+                </label>
                 <input
-                  name="confirmPassword"  className="form-control"
+                  name="confirmPassword"
+                  className="form-control"
                   type="password"
                   value={formik.values.confirmPassword}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+                {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword ? (
                   <label className="text-danger">
                     *{formik.errors.confirmPassword}
                   </label>
@@ -91,18 +98,17 @@ function Resetpage() {
                   ""
                 )}
               </div>
-            </form>
             <button
-               className="btn btn-primary  btn-block mt-2 mb-4"
+              className="btn btn-primary  btn-block mt-2 mb-4"
               type="submit"
               disabled={!(formik.dirty && formik.isValid)}
             >
               Reset
             </button>{" "}
-            </div>
+            </form>
           </div>
         </div>
-
+      </div>
     </>
   );
 }
